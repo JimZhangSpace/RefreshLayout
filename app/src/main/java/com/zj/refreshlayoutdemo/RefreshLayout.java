@@ -4,6 +4,7 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -57,11 +58,15 @@ public class RefreshLayout extends FrameLayout {
                 currentY = startY;
                 break;
             case MotionEvent.ACTION_MOVE:
-
+                float curY = ev.getY();
+                float dy = curY - startY;
+                if (dy > 0 && !canChildScrollUp()) {
+                    return true;
+                }
                 break;
         }
 
-        return true;
+        return super.onInterceptTouchEvent(ev);
     }
 
     @Override
@@ -69,6 +74,10 @@ public class RefreshLayout extends FrameLayout {
 
         switch (event.getActionMasked()) {
 
+//            case MotionEvent.ACTION_DOWN:
+//                startY = event.getY();
+//                currentY = startY;
+//                break;
             case MotionEvent.ACTION_MOVE:
                 currentY = event.getY();
                 float dy = currentY - startY;
@@ -94,7 +103,9 @@ public class RefreshLayout extends FrameLayout {
 
                     float height = mChildView.getTranslationY();
                     if (height > mHeaderHeight) {
+                        mBackUpAnimator.start();
 
+                        mHeaderView.releaseDrag();
                     } else {
                         ValueAnimator backTopAni = ValueAnimator.ofFloat(height, 0);
                         backTopAni.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -183,6 +194,13 @@ public class RefreshLayout extends FrameLayout {
         });
         mBackUpAnimator.setDuration(BACK_TOP_DURA);
 
+    }
+
+    private boolean canChildScrollUp() {
+        if (mChildView == null) {
+            return false;
+        }
+        return ViewCompat.canScrollVertically(mChildView, -1);
     }
 
 }

@@ -84,6 +84,11 @@ public class ProgressView extends View {
         }
     }
 
+    public void releaseDrag() {
+        mProgressStatus = ProgressStatus.REL_DRAG;
+        requestLayout();
+
+    }
     private void init(Context context, AttributeSet attrs, int defStyleAttr) {
 
         PULL_HEIGHT = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100, context.getResources().getDisplayMetrics());
